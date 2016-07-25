@@ -72,9 +72,9 @@ int main()
 {
 	int i=1;
 	RayTrace::Scene scene;
-	RayTrace::ICollideLight* light1 = new RayTrace::CCollideLightPoint(D3DXVECTOR3(0, 1, 0), 3);
+	RayTrace::ICollideLight* light1 = new RayTrace::CCollideLightPoint(D3DXVECTOR3(0, 1, 0), 30);
 	scene.AddLight( light1 );
-	RayTrace::ICollideModel* model1 = new RayTrace::CCollildeBall( D3DXVECTOR3(0, 0, 0), 1 );
+	RayTrace::ICollideModel* model1 = new RayTrace::CCollildeBall( D3DXVECTOR3(0, 0, 0), 10 );
 	scene.AddModel( model1 );
 	scene.GenerateRayTrace();
 	const D3DXCOLOR* imgData = scene.GetDataPtr();

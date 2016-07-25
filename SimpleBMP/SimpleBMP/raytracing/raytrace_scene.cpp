@@ -105,11 +105,11 @@ namespace RayTrace
 
 		if( !is_collide )
 		{
-			return D3DXCOLOR();
+			return D3DXCOLOR(1.0, 1.0, 0.0, 1.0);
 		}
 		else
 		{
-			return D3DXCOLOR();
+			return D3DXCOLOR(0.0, 1.0, 1.0, 1.0);
 		}
 	}
 }
