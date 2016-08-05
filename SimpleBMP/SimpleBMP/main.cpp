@@ -2,13 +2,6 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "raytracing/raytrace_scene.h"
-#include "raytracing/raytrace_model.h"
-
-#include <d3dx9math.h>
-#include <d3dx9.h>
-#pragma comment(lib, "d3dx9.lib")
-
 void SaveToFile_RGB24(FILE* file, Color* colors, int width, int height)
 {
 	//根据bmp格式写文件
@@ -70,18 +63,9 @@ void SaveToFile_RGB24(FILE* file, Color* colors, int width, int height)
 
 int main()
 {
-	int i=1;
-	RayTrace::Scene scene;
-	RayTrace::ICollideLight* light1 = new RayTrace::CCollideLightPoint(D3DXVECTOR3(0, 1, 0), 30);
-	scene.AddLight( light1 );
-	RayTrace::ICollideModel* model1 = new RayTrace::CCollildeBall( D3DXVECTOR3(0, 0, 0), 10 );
-	scene.AddModel( model1 );
-	scene.GenerateRayTrace();
-	const D3DXCOLOR* imgData = scene.GetDataPtr();
-
 	//构件图像数据
-	int width = scene.GetWidth();
-	int height = scene.GetHeight();
+	int width = 256;
+	int height = 256;
 	const int PIXEL_COUNT = width * height;
 	Color* colors = new Color[PIXEL_COUNT];
 
@@ -90,9 +74,9 @@ int main()
 	for (int i = 0; i < PIXEL_COUNT; i++)
 	{
 		Color& color = colors[i];
-		color.R = imgData[i].r * 255;
-		color.G = imgData[i].g * 255;
-		color.B = imgData[i].b * 255;
+		color.R = i&255;
+		color.G = 0;
+		color.B = 0;
 	}
 
 	//绘制图像

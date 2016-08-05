@@ -1,5 +1,3 @@
-#ifndef __BMP_HEAD_H__
-#define __BMP_HEAD_H__
 /*
 BMP文件格式如下：
 阅读方式从上到下，表示文件从起始，依次顺序排列
@@ -23,8 +21,8 @@ linesize * height bytes
 
 #pragma once
 
-//#pragma pack(push)
-//#pragma pack(1)
+#pragma pack(push)
+#pragma pack(1)
 
 typedef char int8;
 typedef short int16;
@@ -34,7 +32,7 @@ typedef unsigned short uint16;
 typedef unsigned int uint32;
 
 
-typedef struct tagBITMAPFILEHEADER1 {
+typedef struct tagBITMAPFILEHEADER {
 	uint16	MagicBM;	//0x4D42
 	uint32	FileSize;	// whole file size.
 	uint16	Reserved1;
@@ -42,7 +40,7 @@ typedef struct tagBITMAPFILEHEADER1 {
 	uint32	DataOffset;	// in bytes. rgb数据偏移值。
 } BitmapFileHead;
 
-typedef struct tagBITMAPINFOHEADER1 {
+typedef struct tagBITMAPINFOHEADER {
 	uint32	InfoSize;	// =sizeof(BitmapInfoHead) =sizeof(this)
 	int32	Width;
 	int32	Height;
@@ -62,10 +60,8 @@ typedef struct tagColor
 	uint8 G;
 	uint8 R;
 } Color;
-//
-//#pragma pack(pop)
+
+#pragma pack(pop)
 
 
 inline int32 LineSize(int32 width, int32 bits) { return (width * bits + 31) / 32 * 4; }
-
-#endif 
