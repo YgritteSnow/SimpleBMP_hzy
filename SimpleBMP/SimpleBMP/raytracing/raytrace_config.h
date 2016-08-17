@@ -8,7 +8,7 @@ namespace RayTrace
 	const int c_max_recurDepth = 5;
 	extern bool IsMaxRecurDepth(int r);
 
-	enum { c_screen_width = 400 };
+	enum { c_screen_width = 300 };
 	enum { c_screen_height = 300 };
 }
 

@@ -29,8 +29,8 @@ namespace RayTrace
 
 	private:
 		void SetImgBit(int x, int y, const D3DXCOLOR& color){*(m_imgData + x*c_screen_height + y) = color;}
-		bool CalPixel_byRay(const ICollideRay& ray, D3DXCOLOR* out_color, int recurDepth) const ;
-		D3DXCOLOR CalLights(D3DXVECTOR3* pos) const ;
+		bool CalPixel_byRay( const ICollideRay& ray, D3DXCOLOR* out_color, int recurDepth, float reflectFactor ) const ;
+		D3DXCOLOR CalLights( const D3DXVECTOR3& pos, const float dist, const D3DXVECTOR3& normal, const D3DXVECTOR3& cameraDirect, const ICollideModel* curModel ) const ;
 		
 		void CalReflectRay( const D3DXVECTOR3& collidePoint, const D3DXVECTOR3& collideNormal, const D3DXVECTOR3& collideRay, ICollideRay* out_reflectRay) const ;
 		void CalRefractRay( const D3DXVECTOR3& collidePoint, const D3DXVECTOR3& collideNormal, const D3DXVECTOR3& collideRay, ICollideRay* out_reflectRay) const ;

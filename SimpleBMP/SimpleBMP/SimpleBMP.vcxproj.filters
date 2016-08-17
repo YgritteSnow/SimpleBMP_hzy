@@ -41,8 +41,5 @@
     <ClInclude Include="raytracing\raytrace_scene.h">
       <Filter>源文件\raytracing</Filter>
     </ClInclude>
-    <ClInclude Include="bmp_head.h">
-      <Filter>源文件</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

@@ -71,7 +71,6 @@
     <ClCompile Include="raytracing\raytrace_scene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bmp_head.h" />
     <ClInclude Include="raytracing\raytrace_config.h" />
     <ClInclude Include="raytracing\raytrace_model.h" />
     <ClInclude Include="raytracing\raytrace_scene.h" />

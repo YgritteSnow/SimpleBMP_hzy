@@ -1,6 +1,8 @@
 
 #include "raytrace_model.h"
 
+const float min_error = 0.0001f;
+
 namespace RayTrace
 {
 	/************************************************************************/
@@ -22,23 +24,34 @@ namespace RayTrace
 		float proj_length, proj_half;
 		if( CalLineCross(line, NULL, &proj_length, &proj_half) )
 		{
-			float near_length = proj_length - proj_half;
-			if( near_length >= 0 )
+			float result_length = 0;
+			if( proj_length - proj_half >= 0 )
 			{
-				if( out_collidePoint) 
-					*out_collidePoint = line.GetStartPoint() + line.GetNormal() * near_length;
-				return true;
+				result_length = proj_length - proj_half;
+			}
+			else if( proj_length + proj_half >= 0 )
+			{
+				result_length = proj_length + proj_half;
+			}
+			else
+			{
+				return false;
 			}
 
-			float far_length = proj_length + proj_half;
-			if( far_length >= 0 )
-			{
-				if( out_collidePoint ) 
-					*out_collidePoint = line.GetStartPoint() + line.GetNormal() * far_length;
-				return true;
-			}
+			if( result_length < min_error )
+				return false;
 
-			return false;
+			if( out_collidePoint )
+				*out_collidePoint = line.GetStartPoint() + line.GetNormal() * result_length;
+			if( out_collideDist )
+				*out_collideDist = result_length;
+			if( out_collideNormal )
+			{
+				D3DXVECTOR3 normal = line.GetStartPoint() + line.GetNormal() * result_length - GetCenter();
+				D3DXVec3Normalize(&normal, &normal);
+				*out_collideNormal = normal;/*( line.GetStartPoint() + line.GetNormal() * result_length - GetCenter() ) / m_radius*/;
+			}
+			return true;
 		}
 		else
 		{
@@ -55,8 +68,10 @@ namespace RayTrace
 
 		if( out_projPoint )
 			*out_projPoint = line.GetStartPoint() + line.GetNormal() * proj_factor;
+		if( out_projLengthProj )
+			*out_projLengthProj = proj_factor;
 		if( out_projLengthHalf )
-			*out_projLengthHalf = sqrt( o_to_line );
+			*out_projLengthHalf = sqrt( m_radius * m_radius - o_to_line );
 
 		return true;
 	}
@@ -66,23 +81,25 @@ namespace RayTrace
 		D3DXVECTOR3 collide_point;
 		if( CalLineCross(line, &collide_point) )
 		{
+			float res_length = 0;
 			float collide_width = D3DXVec3Dot( &(collide_point - m_center), &GetWidthNormal() );
-			if( abs(collide_width) <= m_width )
-			{
-				if( out_collidePoint )
-					*out_collidePoint = collide_point;
-				return true;
-			}
-			
 			float collide_height = D3DXVec3Dot( &(collide_point - m_center), &GetWidthNormal() );
-			if( abs(collide_height) <= m_height )
+			if( abs(collide_width) >= m_width && abs(collide_height) >= m_height )
 			{
-				if( out_collidePoint )
-					*out_collidePoint = collide_point;
-				return true;
+				return false;
 			}
 
-			return false;
+			if( D3DXVec3LengthSq(&(collide_point - line.GetStartPoint())) < min_error )
+				return false;
+			
+			if( out_collidePoint )
+				*out_collidePoint = collide_point;
+			if( out_collideDist )
+				*out_collideDist = D3DXVec3Length(&(collide_point - line.GetStartPoint()));
+			if( out_collideNormal )
+				*out_collideNormal = GetNormal();
+
+			return true;
 		}
 		else
 		{

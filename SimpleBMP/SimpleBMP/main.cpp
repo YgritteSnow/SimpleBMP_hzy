@@ -1,97 +1,63 @@
-#include "bmp_head.h"
 #include <stdio.h>
 #include <memory.h>
 
-void SaveToFile_RGB24(FILE* file, Color* colors, int width, int height)
-{
-	//根据bmp格式写文件
-	const int BITS24 = 24;
-	int pitch = LineSize(width, BITS24);
-	BitmapFileHead fileHeader;
-	BitmapInfoHead infoHeader;
-	memset(&fileHeader, 0, sizeof(fileHeader));
-	memset(&infoHeader, 0, sizeof(infoHeader));
+#include "raytracing/raytrace_scene.h"
+#include "raytracing/raytrace_model.h"
 
-	//先写文件头
-	fileHeader.MagicBM = 0x4D42;
-	fileHeader.DataOffset = sizeof(fileHeader) + sizeof(infoHeader);
-	fileHeader.FileSize = fileHeader.DataOffset + pitch * height;
+#include <d3dx9math.h>
+#include <d3dx9.h>
+#pragma comment(lib, "d3dx9.lib")
 
-	//再写信息头
-	infoHeader.InfoSize = sizeof(infoHeader);
-	infoHeader.Plane = 1;
-	infoHeader.Width = width;
-	infoHeader.Height = height;
-	infoHeader.DataBits = BITS24;
-	infoHeader.Format = 0;
-	infoHeader.DataSize = fileHeader.FileSize - fileHeader.DataOffset;
+#include <iostream>
+#include <cmath>
+#include <cstdlib>
+#define DM1 (DIM-1)
+#define _sq(x) ((x)*(x)) // square
+#define _cb(x) abs((x)*(x)*(x)) // absolute value of cube
+#define _cr(x) (unsigned char)(pow((x),1.0/3.0)) // cube root
 
-	fwrite(&fileHeader, sizeof(fileHeader), 1, file);
-	fwrite(&infoHeader, sizeof(infoHeader), 1, file);
+FILE *fp;
+int main(){
+	RayTrace::Scene scene;
+	RayTrace::ICollideLight* light1 = new RayTrace::CCollideLightPoint(D3DXVECTOR3(0, 9, 0), D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f), 30);
+	scene.AddLight( light1 );
+	RayTrace::ICollideModel* model1 = new RayTrace::CCollildeBall( D3DXVECTOR3(0, 0, 0), D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f), 2 );
+	scene.AddModel( model1 );
+	scene.GenerateRayTrace();
+	const D3DXCOLOR* imgData = scene.GetDataPtr();
 
-	//开始写数据
-	uint8* buffer = reinterpret_cast<uint8*>(colors);
-	if (pitch == width * 3)
-	{
-		//原点在左下角，因此反着写buffer
-		for (int i = height - 1; i >= 0; i--)
-		{
-			int offset = pitch * i;
-			uint8* lineData = buffer + offset;
-			fwrite(lineData, pitch, 1, file);
-		}
-	}
-	else
-	{
-		int dummySize = pitch;
-		pitch = width * (BITS24 / 8);
-		dummySize = dummySize - pitch;	//每行后头有个小尾巴，用来补齐每行长度（4字节的倍数）
-		uint8* dummyBuffer = new uint8[dummySize];
-
-		//原点在左下角，因此反着写buffer
-		for (int i = height - 1; i >= 0; i--)
-		{
-			int offset = pitch * i;
-			uint8* lineData = buffer + offset;
-			fwrite(lineData, pitch, 1, file);
-			fwrite(dummyBuffer, dummySize, 1, file);
-		}
-		delete[] dummyBuffer;
-	}
-
-}
-
-int main()
-{
 	//构件图像数据
-	int width = 256;
-	int height = 256;
-	const int PIXEL_COUNT = width * height;
-	Color* colors = new Color[PIXEL_COUNT];
+	int width = scene.GetWidth();
+	int height = scene.GetHeight();
 
-	//设置背景色
-	//for(auto& c : colors) for  c++11
-	for (int i = 0; i < PIXEL_COUNT; i++)
-	{
-		Color& color = colors[i];
-		color.R = i&255;
-		color.G = 0;
-		color.B = 0;
-	}
+	//int width = 298;
+	//int height = 199;
+	//D3DXCOLOR* imgData = new D3DXCOLOR[width * height];
+	//for( int w = 0; w < width; ++w )
+	//	for( int h = 0; h < height; ++h )
+	//	{
+	//		if( w + h <= 150 )
+	//		{
+	//			*(imgData + w * height + h) = D3DXCOLOR(1.0f, 0.0f, 0.0f, 0.0f);
+	//		}
+	//		else
+	//		{
+	//			*(imgData + w * height + h) = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
+	//		}
+	//	}
 
-	//绘制图像
-	//这个地方开始你想要做的事情
-	//Render(colors, width, height);
+	fopen_s(&fp, "MathPic.ppm","wb");
+	fprintf(fp, "P6\n%d %d\n255\n", height, width);
+	for(int w=0;w<width;w++)
+		for(int h=0;h<height;h++)
+		{
+			static unsigned char color[3];
+			color[0] = int( (imgData + w * height + h)->r * 255) &255;
+			color[1] = int( (imgData + w * height + h)->g * 255) &255;
+			color[2] = int( (imgData + w * height + h)->b * 255) &255;
+			fwrite(color, 1, 3, fp);
+		}
+	fclose(fp);
 
-	//保存结果
-	const char* filePath = "f:\\a.bmp";
-	FILE* bmpFile;
-	fopen_s(&bmpFile, filePath, "w");
-	if (bmpFile)
-	{
-		SaveToFile_RGB24(bmpFile, colors, width, height);
-		fclose(bmpFile);
-	}
-	delete[] colors;
 	return 0;
 }
